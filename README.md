@@ -1003,5 +1003,5 @@ Copyright © 2026 Edinso....
 
 ## Autor
 
-**Edison...**  
+**Edison Henao Hernández**  
 PPeriodista..., Politólogo....
