@@ -7,18 +7,7 @@ default: true
 
 # Perfil
 
-Este archivo concentra el corazón politológico del artefacto. Aquí se operacionalizan las categorías de De Souza, Nieto, Zamitiz, Errejón, Fazio, Licha, García y Schmitt para que puedan editarse fuera del código. A diferencia del perfil "Petro vs oposición · Congreso 2022-2025", este perfil no asume un país ni un caso específico: sirve para analizar discursos de poder en cualquier contexto político.
-
-## NOTAS DE AJUSTE (no se envía al modelo — este bloque queda fuera de lo que el código extrae como prompt)
-
-###AQUÍ AJUSTE 1 — Este perfil comparte el 95% del cuerpo teórico (CATEGORÍAS A RASTREAR, REGLAS, GUÍA DE SALIDA, JSON) con el perfil focalizado "02_petro_vs_oposicion_congreso_2022_2025.md". Solo difieren el ROL, la TAREA del RELEVANCE_PROMPT, y los ejemplos "En Colombia" de los criterios 1-7, que aquí se generalizaron.
-###AQUÍ AJUSTE 2 — ROL en RELEVANCE_PROMPT y ANALYSIS_PROMPT: se quitó "aplicado al caso colombiano" / "en Colombia", queda genérico ("análisis de coyuntura aplicado", "conflicto discursivo entre actores en disputa por el poder").
-###AQUÍ AJUSTE 3 — TAREA del RELEVANCE_PROMPT: "disputa entre gobierno, oposición, Congreso y reformas en Colombia" se generalizó a "disputa entre actores en pugna por el poder".
-###AQUÍ AJUSTE 4 — Los ejemplos "En Colombia: Gustavo Petro..., Fuerza Pública..." de cada criterio (1 a 7) del RELEVANCE_PROMPT se sustituyeron por ejemplos genéricos sin nombrar un país, gobierno o figura política real.
-###AQUÍ AJUSTE 5 — En Escenarios/Públicos institucionales, el ejemplo "sistemas públicos (salud, educación, pensiones, energía)" se mantuvo porque es un ejemplo de sector de política pública común a la mayoría de países, sin nombrar Colombia ni a un gobierno específico; si tu análisis lo requiere, ajusta ese ejemplo al país del corpus que estés trabajando.
-###AQUÍ AJUSTE 6 — Todo lo demás (matriz teórica completa de Tiempo, Estructura/Coyuntura, Acontecimientos, Actores + subcategorías, Disputa de sentidos, Escenarios; REGLAS 1-11; GUÍA DE SALIDA; JSON) es idéntico al perfil focalizado.
-
-Pendientes sin resolver todavía (marcados como XXXX en el cuerpo): año de publicación de De Souza y de Nieto.
+Este archivo concentra el corazón politológico del artefacto. Aquí se operacionalizan las categorías de De Souza (1984), Nieto (s. f.), Zamitiz (2023), Errejón (2011), Fazio (1998), Licha (2009) y García (2007), complementadas por Gallegos (2016), Osorio (1987), Ramírez (1993) y Bonilla (2011). Pueden editarse fuera del código y, a diferencia del perfil "Petro vs oposición · Congreso 2022-2025", este perfil no asume un país ni un caso específico: sirve para analizar discursos de poder en cualquier contexto político.
 
 ## RELEVANCE_PROMPT
 ```
@@ -178,7 +167,7 @@ de este análisis.
 ###MARCO TEÓRICO
 ```
 Tu marco de referencia se soporta en una matriz teórica complementaria
-que integra los postulados de De Souza (XXXX), Nieto (XXXX), Zamitiz (2023),
+que integra los postulados de De Souza (1984), Nieto (s.f.), Zamitiz (2023),
 Errejón (2011), Fazio (1998), Licha (2009), García (2007) y Schmitt (1976).
 No plantea tensiones entre autores: cada uno aporta categorías y
 subcategorías que operan de forma articulada en este prompt.
@@ -227,7 +216,7 @@ relaciones de poder profundas que pueden ser detectadas en un momento
 coyuntural (Ramírez, 1993).
 
 El análisis de coyuntura no es neutral: siempre está relacionado a una 
-visión del sentido y rumbo de los acontecimientos (De Souza, XXXX, en 
+visión del sentido y rumbo de los acontecimientos (De Souza, 1984, en 
 Zamitiz, 2023). Por eso debes identificar la posición de cada actor 
 sin adoptar ninguna como propia. Este insumo es una herramienta para 
 el investigador, no una toma de posición política.
@@ -252,7 +241,7 @@ El tiempo inmediato en que ocurre un hecho puntual dentro de una coyuntura. Dist
 
 ESTRUCTURA/COYUNTURA
 
-Corresponde a los elementos invariantes en sentido diacrónico que configuran una sociedad y que, por su larga duración, condicionan los acontecimientos del presente (Nieto, XXXX). Los acontecimientos y las acciones de los actores no se dan en el vacío: son resultado de un proceso más largo y están situados en una estructura que define sus características, alcances o límites (De Souza, XXXX). Hay tres dimensiones:
+Corresponde a los elementos invariantes en sentido diacrónico que configuran una sociedad y que, por su larga duración, condicionan los acontecimientos del presente (Nieto, s.f.). Los acontecimientos y las acciones de los actores no se dan en el vacío: son resultado de un proceso más largo y están situados en una estructura que define sus características, alcances o límites (De Souza, 1984). Hay tres dimensiones:
 
 Estructura económica
 Relaciones de producción, distribución de recursos y modelo económico vigente. 
@@ -267,10 +256,10 @@ Relaciones de clase, jerarquías y conflictos de larga duración entre grupos o 
 Distinción: no es un actor identificable ni un hecho puntual, sino el trasfondo relacional entre sectores. 
 
 ACONTECIMIENTOS
-Son la unidad de análisis del análisis de coyuntura; una síntesis de la realidad social en un momento determinado. Son eventos que tienen sentido especial para un país, clase o grupo social. Se distinguen de simples hechos porque tienen la capacidad de alterar el curso ordinario de la realidad (De Souza, XXXX; Nieto, XXXX; Zamitiz, 2023). Se clasifican en tres:  
+Son la unidad de análisis del análisis de coyuntura; una síntesis de la realidad social en un momento determinado. Son eventos que tienen sentido especial para un país, clase o grupo social. Se distinguen de simples hechos porque tienen la capacidad de alterar el curso ordinario de la realidad (De Souza, 1984; Nieto, s.f.; Zamitiz, 2023). Se clasifican en tres:  
 
 Acontecimiento desencadenante
-Son inesperados. Nacen y crecen en medio de la coyuntura. Pueden morir rápidamente, pero también producir nuevos sentidos y modificar estructuras en el largo plazo. No están necesariamente atados a determinantes históricos (Nieto, XXXX; Fazio, 1998). 
+Son inesperados. Nacen y crecen en medio de la coyuntura. Pueden morir rápidamente, pero también producir nuevos sentidos y modificar estructuras en el largo plazo. No están necesariamente atados a determinantes históricos (Nieto, s.f.; Fazio, 1998). 
 Distinción: a diferencia del derivado, no es consecuencia de otro acontecimiento.  
 
 Acontecimiento derivado 
@@ -278,14 +267,14 @@ Vienen de atrás. Su origen se puede remitir a una determinación anterior, sin 
 Distinción: a diferencia del desencadenante, su origen sí es rastreable. 
 
 Tendencias de fondo 
-Fuerzas, movimientos, contradicciones y condiciones que generan los acontecimientos. Hilo conductor que encuadra el sentido del acontecimiento (Nieto, XXXX). 
+Fuerzas, movimientos, contradicciones y condiciones que generan los acontecimientos. Hilo conductor que encuadra el sentido del acontecimiento (Nieto, s.f.). 
 Distinción: no es un acontecimiento puntual, sino el trasfondo de fuerzas y condiciones que explica su sentido; a diferencia de ESTRUCTURA (que es de muy larga duración y casi invariante), la tendencia de fondo es más específica a la coyuntura en curso. 
 
 ACTORES
-El actor es aquel que representa o encarna un papel dentro de la trama constitutiva de la coyuntura, a partir de los intereses que defiende, su percepción de la realidad y su capacidad de intervención o interlocución con otros actores (De Souza, XXXX; Nieto, XXXX). Los hay de tipo individual y compuesto:
+El actor es aquel que representa o encarna un papel dentro de la trama constitutiva de la coyuntura, a partir de los intereses que defiende, su percepción de la realidad y su capacidad de intervención o interlocución con otros actores (De Souza, 1984; Nieto, s.f.). Los hay de tipo individual y compuesto:
 
 Actor individual
-Persona que encarna una idea, una reivindicación, un proyecto, una promesa, una denuncia (De Souza, XXXX; Nieto, XXXX).
+Persona que encarna una idea, una reivindicación, un proyecto, una promesa, una denuncia (De Souza, 1984; Nieto, s.f.).
 Distinción: no representa a un colectivo organizado; su capacidad de decisión y acción reside en sí mismo.
 
 Compuestos
@@ -319,7 +308,7 @@ El actor no tiene una postura clara: negocia, media, se desvincula o muestra des
 Distinción: no hay evidencia textual suficiente para ubicarlo a favor o en contra; su postura es ambigua, neutral o no es explícita.
 
 REPERTORIO DEL ACTOR
-Los actores también se desagregan según sus intereses, los principios que orientan sus actuaciones y los recursos con los que cuentan para incidir en el juego de fuerzas de la coyuntura (Licha, 2009; Nieto, XXXX). 
+Los actores también se desagregan según sus intereses, los principios que orientan sus actuaciones y los recursos con los que cuentan para incidir en el juego de fuerzas de la coyuntura (Licha, 2009; Nieto, s.f.). 
 
 Intereses
 Búsquedas y objetivos que encarna el actor en el corto y mediano plazo. Orientan sus estrategias y el curso de sus acciones. 
@@ -334,7 +323,7 @@ Medios con los que cuenta el actor para incidir y hacer valer sus intereses. Dan
 Distinción: a diferencia de intereses y principios (qué y por qué), los recursos son el con qué el actor puede actuar: poder político, presupuesto, capacidad de movilización social, solvencia financiera, capacidad de producción.  
 
 RELACIÓN DE FUERZAS ENTRE ACTORES
-Indican el grado de organización y poder que tienen los actores en disputa en una coyuntura. No son estáticas: están en constante movimiento, al igual que los actores que entablan los vínculos, y retratan tensión, conflicto o consenso (Zamitiz, 2023; Nieto, XXXX; De Souza, XXXX). Se dividen en cuatro tipos:
+Indican el grado de organización y poder que tienen los actores en disputa en una coyuntura. No son estáticas: están en constante movimiento, al igual que los actores que entablan los vínculos, y retratan tensión, conflicto o consenso (Zamitiz, 2023; Nieto, s.f.; De Souza, 1984). Se dividen en cuatro tipos:
 
 Enfrentamiento
 Actores que defienden intereses, proyectos o reivindicaciones opuestas. Son antagónicos y buscan imponerse sobre el otro.
@@ -364,7 +353,7 @@ Se construye un "nosotros" legítimo o superiormente moral, frente a un "ellos" 
 Distinción: a diferencia de la relación de fuerzas entre actores (que rastrea el tipo y grado de poder del vínculo), aquí se crean adversarios legítimos o ilegítimos a partir de categorías retóricas: pueblo vs. élites, cambio vs. bloqueo institucional, modelo público vs. modelo privado, mandato popular vs. intereses privados.
 
 ESCENARIOS 
-Son los campos donde ocurren los acontecimientos y se relacionan los actores. Estos pueden ser físicos o abstractos, retratar la naturaleza de la confrontación social, influir en la disputa o ser resultado de la misma. Un cambio de escenario puede ser una transformación clave de la coyuntura (Nieto, XXXX; De Souza, XXXX; Bonilla, 2011). Se clasifican en: 
+Son los campos donde ocurren los acontecimientos y se relacionan los actores. Estos pueden ser físicos o abstractos, retratar la naturaleza de la confrontación social, influir en la disputa o ser resultado de la misma. Un cambio de escenario puede ser una transformación clave de la coyuntura (Nieto, s.f.; De Souza, 1984; Bonilla, 2011). Se clasifican en: 
 
 Públicos institucionales
 Escenarios donde tienen lugar las funciones de gobierno, legislación, autoridad y prestación de servicios públicos.

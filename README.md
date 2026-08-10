@@ -37,8 +37,8 @@ Antes de ejecutar la aplicación necesitas:
 ### 1.2. Clonar el repositorio
 
 ```bash
-git clone https://github.com/xxxxxxx
-cd xxxxx
+git clone https://github.com/edisonhenao/coyuntura-politica-ia
+cd coyuntura-politica-ia
 ```
 
 ### 1.3. Crear y activar un entorno virtual
@@ -583,9 +583,6 @@ Consulta [`src/system_prompts/README.md`](src/system_prompts/README.md).
 
 El perfil `01_dsrm_colombia_general.md` está formulado como un marco general aplicable a distintos contextos políticos. Integra categorías atribuidas en el propio archivo a De Souza, Nieto, Zamitiz, Errejón, Fazio, Licha, García y Schmitt.
 
-> [!NOTE]
-> El perfil todavía conserva referencias bibliográficas pendientes de completar para De Souza y Nieto, marcadas como `XXXX`. Edisón...  completar y revisar esas referencias.
-
 ---
 
 ## 13. Observabilidad y costos
@@ -1003,5 +1000,5 @@ Copyright © 2026 Edinso....
 
 ## Autor
 
-**Edison Henao Hernández**  
-PPeriodista..., Politólogo....
+**Edison Ferney Henao Hernández**  
+Estudiante de Ciencia Política. 
