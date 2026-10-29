@@ -1,11 +1,11 @@
 # Optimización del Análisis de Coyuntura Política con IA
 
-MVP de herramienta politológica desarollada en Streamlit para convertir un audio de un discurso  político en una transcripción auditable, un perfil exploratorio de audio, un filtro de relevancia política y un insumo estructurado para el análisis de coyuntura política.
+MVP de herramienta politológica desarrollada en Streamlit para convertir un audio de un discurso  político en una transcripción auditable, un perfil exploratorio de audio, un filtro de relevancia política y un insumo estructurado para el análisis de coyuntura política.
 
 > [!IMPORTANT]
-> **Estado actual del proyecto:** este repositorio contiene una **Propuesta de trabajo de grado / bajo la idea de prueba de concepto PoC**, pensada principalmente para **discursos políticos de un solo hablante**. No realiza diarización, no separa automáticamente varias voces, no procesa lotes de audios y no sustituye el juicio profesional del politólogo. Su propósito es validar si una herramienta de IA puede integrarse de forma útil, trazable y metodológicamente prudente a la caja de herramientas cotidiana de la Ciencia Política.
+> **Estado actual del proyecto:** este repositorio contiene una **prueba de concepto (PoC) desarrollada como trabajo de grado**, pensada principalmente para **discursos políticos de un solo hablante**. No realiza diarización, no separa automáticamente varias voces, no procesa lotes de audios y no sustituye el juicio profesional del politólogo. Su propósito es validar si una herramienta de IA puede integrarse de forma útil, trazable y metodológicamente prudente a la caja de herramientas cotidiana de la Ciencia Política.
 
-El proyecto sigue el siugiente flujo completo:
+El proyecto sigue el siguiente flujo completo:
 
 ```text
 Audio
@@ -16,6 +16,70 @@ Audio
   -> análisis estructurado de coyuntura
   -> resultados, observabilidad y exportaciones
 ```
+
+---
+
+## Guía de componentes para analistas y evaluadores
+
+Esta guía permite ubicar los cinco componentes principales del artefacto, comprender su función y distinguir los ajustes de configuración de los cambios que requieren desarrollo. Se mantiene la aplicación monolítica en `app.py`; la guía es documentación estática y no añade controles ni navegación a la interfaz de Streamlit.
+
+**Referencia del código:** las funciones y líneas indicadas se verificaron sobre el commit [`9eb90d49234532454369bcd6550e9a5da54fd81e`](https://github.com/edisonhenao/coyuntura-politica-ia/tree/9eb90d49234532454369bcd6550e9a5da54fd81e). Si cambia el archivo, utiliza el nombre de la función para localizarla; las líneas son una referencia de esa versión.
+
+| Componente | Dónde localizarlo | Qué hace | Qué puede ajustar el analista |
+|---|---|---|---|
+| Configuración | `.streamlit/secrets.toml.example`; `app.py`, líneas 38-138: `_read_secret_or_env`, `_read_float_setting`, `_read_int_setting` y constantes | Lee credenciales, modelos, límites, umbrales acústicos y tarifas desde secretos o variables de entorno. | Crear su archivo privado de configuración y cambiar los valores admitidos; no publicar credenciales. |
+| Procesamiento de audio | `app.py`: `inspect_audio_input` (458-496), `prepare_audio_files` (570-687), `transcribe_with_openai_api` (706-735) y `process_audio_pipeline` (1314-1449) | Inspecciona el audio, genera M4A y WAV, solicita la transcripción, normaliza segmentos y construye el perfil acústico. | Cargar un audio, escribir el contexto y configurar bitrate, límite de carga y umbrales acústicos. Cambiar etapas o formatos exige editar código. |
+| Prompts y marco politológico | `src/system_prompts/01_dsrm_colombia_general.md`; `app.py`: `_extract_prompt_sections` (331-340) y `load_prompt_profiles` (343-375) | Separa las instrucciones del filtro de relevancia y del análisis de coyuntura en perfiles Markdown seleccionables. | Duplicar un perfil, cambiar sus metadatos, categorías, ejemplos y reglas, conservando los encabezados y el contrato de salida. |
+| Modelo de lenguaje | `app.py`: `call_openai_json` (1553-1603), `run_relevance_filter` (1791-1806) y `run_strategic_analysis` (1809-1825) | Envía al modelo el prompt de sistema, la transcripción, el contexto y un resumen del perfil acústico; recibe JSON y registra telemetría. | Configurar `OPENAI_ANALYSIS_MODEL` con un modelo compatible y ajustar las tarifas de referencia. El proveedor implementado es OpenAI. |
+| Exportación | `app.py`: `PoliticalReportPDF` (1828-2076), `build_pdf` (2079-2226), `technical_summary_to_text` (2543-2640) y bloque de exportación en `main` (3307-3383) | Prepara TXT, CSV, JSON, PDF y TXT técnico a partir del resultado conservado en la sesión. | Descargar cada salida y conservarla por ejecución. Cambiar los campos o el diseño del informe requiere revisar los generadores y normalizadores. |
+
+### Configuración: qué cambiar y dónde
+
+La plantilla pública enumera los parámetros admitidos. Copia sus valores a `.streamlit/secrets.toml` y sigue los pasos de las secciones 1 y 2. La sección 14 describe las variables. En esta versión, la configuración se consulta primero en `st.secrets` y después en el entorno.
+
+Conviene distinguir tres niveles de intervención:
+
+| Nivel | Ejemplos | ¿Requiere modificar `app.py`? |
+|---|---|---|
+| Uso de la interfaz | Archivo de audio, contexto inicial y selección del perfil de prompts. | No. |
+| Configuración o criterio analítico | Modelos, bitrate, umbrales disponibles, tarifas, definiciones teóricas y ejemplos del perfil. | No, mientras se mantengan las capacidades y el esquema existentes. |
+| Cambio de funcionamiento o estructura | Diarización, lotes, otro proveedor, nuevos campos JSON o nuevas salidas. | Sí; requiere desarrollo y verificación. |
+
+### Audio: entradas, transformaciones y límites
+
+`prepare_audio_files` crea ambos archivos desde el audio original: un M4A/AAC para la transcripción remota y un WAV PCM para Librosa. `process_audio_pipeline` coordina la transcripción y la extracción de características, y elimina sus archivos temporales al terminar. Convertir una fuente comprimida a WAV no recupera información que ya se perdió en la grabación o compresión original.
+
+El límite operativo se comprueba sobre el **M4A que se envía**, no como un máximo universal de tamaño del archivo original. La interfaz también estima su tamaño antes de iniciar. La duración aproximada de 51 minutos depende de los valores predeterminados de bitrate y límite; no es un límite fijo independiente de la configuración.
+
+El contexto inicial orienta la transcripción y acompaña el análisis. Para comparar ejecuciones, conserva exactamente ese contexto, el audio y el perfil utilizado.
+
+### Prompts: criterio analítico y contrato de salida
+
+El archivo del perfil contiene metadatos (`id`, `name`, `description`, `default`) y dos encabezados obligatorios: `## RELEVANCE_PROMPT` y `## ANALYSIS_PROMPT`. El primero define la relevancia política; el segundo operacionaliza tiempo, estructura, acontecimientos, actores, relaciones de fuerza, escenarios y disputa de sentidos.
+
+Para adaptar el enfoque sin cambiar el programa:
+
+1. Duplica el perfil como otro archivo `.md` dentro de `src/system_prompts/`.
+2. Asigna un `id` único y un nombre que distinga la variante; usa `default: false` si no será el perfil predeterminado.
+3. Ajusta definiciones, ejemplos y reglas, manteniendo los encabezados obligatorios y las claves y tipos JSON esperados.
+4. Selecciona el perfil en la interfaz y ejecuta el flujo con un caso de prueba.
+5. Contrasta la transcripción, el JSON y el PDF antes de utilizar los resultados.
+
+La normalización se encuentra en `normalize_relevance_payload` y `normalize_analysis_payload`. Cambiar la estructura de salida puede exigir ajustes adicionales en esos normalizadores, la interfaz y `build_pdf`. Pedir JSON al modelo y normalizarlo no equivale a validar formalmente un esquema ni la corrección de sus interpretaciones.
+
+### Modelos y parámetros efectivamente implementados
+
+Los valores predeterminados del código revisado son `whisper-1` para transcripción y `gpt-5.6-luna` para las dos llamadas de análisis. Son identificadores configurados en esta versión; su disponibilidad debe comprobarse en la cuenta que ejecute el artefacto. Cambiar el nombre de un modelo no asegura que admita los mismos formatos y parámetros.
+
+La transcripción solicita `verbose_json` y marcas de tiempo por segmento y palabra. El análisis usa `client.chat.completions.create` con `response_format={"type": "json_object"}`. **Las llamadas revisadas no fijan explícitamente `temperature` ni `seed`**; por ello, esta versión no debe describirse como configurada con temperatura 0 ni como garantía de resultados idénticos.
+
+El prompt establece la escala de densidad y espera coherencia entre `density_score` y `relevant`. En la implementación revisada, la continuación depende de `relevant`. `normalize_relevance_payload` usa el umbral de 51 como valor de respaldo cuando la decisión no se interpreta como un booleano válido; no impone una comprobación independiente del umbral cuando recibe un booleano válido. Revisa ambos campos al interpretar el filtro. Una validación estricta conjunta de puntuación y decisión requiere un ajuste del código.
+
+### Exportaciones y evidencia por ejecución
+
+`build_technical_summary` (líneas 2422-2540) reúne tiempos, estado, modelos y solicitudes. El JSON exporta ese resumen junto con la transcripción, segmentos, perfil acústico, relevancia y análisis. El PDF es una vista legible y no contiene toda la telemetría del JSON. Ninguna exportación garantiza por sí sola que todas las afirmaciones tengan evidencia textual: cada resultado debe contrastarse con la fuente.
+
+Descarga el JSON y el TXT técnico antes de iniciar otra ejecución, porque el siguiente proceso sustituye los resultados de la sesión. Para distinguir una ejecución de una nueva descarga del mismo resultado, consulta los campos de auditoría de la sección 13.1.
 
 ---
 
@@ -255,7 +319,7 @@ El filtro asigna una densidad política entre 0 y 100.
 76–100 Densidad alta y claramente analizable
 ```
 
-Si el resultado es menor a 51 o `relevant = false`, el pipeline se detiene de forma controlada y no ejecuta la segunda llamada de análisis político. La transcripción, el perfil de audio y el resumen técnico continúan disponibles.
+El criterio del perfil es considerar analizables las puntuaciones desde 51. En el código revisado, el pipeline se detiene si el resultado normalizado contiene `relevant = false`; no comprueba de forma independiente que una decisión `true` venga acompañada de una puntuación de al menos 51. Si se detiene, la transcripción, el perfil de audio y el resumen técnico continúan disponibles. La guía de componentes explica esta distinción entre el criterio del prompt y la condición programada.
 
 ### Paso 5. Revisar resultados
 
@@ -577,7 +641,7 @@ Para crear un nuevo enfoque:
 4. conserva los encabezados `RELEVANCE_PROMPT` y `ANALYSIS_PROMPT`;
 5. ajusta el código si modificas la estructura JSON esperada.
 
-Consulta [`src/system_prompts/README.md`](src/system_prompts/README.md).
+Consulta [`src/system_prompts/README_system_prompt.md`](src/system_prompts/README_system_prompt.md).
 
 ### Perfil actual
 
@@ -621,10 +685,29 @@ Se calculan por separado:
 - análisis político;
 - total de la ejecución.
 
-Las tarifas de referencia están definidas en `secrets.toml.example` y pueden actualizarse sin modificar el código.
+Las tarifas de referencia están definidas en `.streamlit/secrets.toml.example` y pueden actualizarse sin modificar el código. El cálculo conserva tarifas configuradas para el modelo de referencia; cambiar `OPENAI_ANALYSIS_MODEL` no actualiza automáticamente esos precios.
 
 > [!CAUTION]
 > Los valores mostrados son estimaciones. La fuente definitiva es la facturación y el panel de uso de OpenAI.
+
+### 13.1. Reejecución, caché y verificación de la transcripción
+
+En la versión de código citada en la guía, cada pulsación válida de **Ejecutar pipeline** reinicia `transcript`, `transcription_payload`, los resultados analíticos y la telemetría. Después llama a `process_audio_pipeline`, que invoca `transcribe_with_openai_api` y solicita la transcripción al servicio. No se implementa reutilización automática de transcripciones por coincidencia del hash del audio.
+
+El decorador `st.cache_data` está aplicado a `inspect_audio_input`, que inspecciona duración y tamaño estimado. No está aplicado a la función de transcripción. Por su parte, `st.session_state` conserva el resultado para mostrarlo o exportarlo entre interacciones: consultar pestañas o volver a descargar un informe no acredita una nueva ejecución. Los contadores de tokens cacheados del LLM pertenecen a otra etapa y no demuestran reutilización de la transcripción.
+
+| Evidencia en el JSON | Para qué sirve | Límite de interpretación |
+|---|---|---|
+| `technical_summary.run.started_at` y `finished_at` | Fechas y horas registradas del proceso. | No confundir con `meta.exported_at`, que corresponde a la exportación. |
+| `technical_summary.run.audio_hash` | Identificar el archivo original mediante los primeros 16 caracteres de su SHA-256. | El mismo hash es esperable al repetir el mismo audio; no indica reutilización de resultados. |
+| `technical_summary.transcription.request_id` | Relacionar la transcripción con una solicitud, cuando el SDK devuelve ese dato. | Para acreditar dos llamadas, comparar los identificadores de transcripción de ambas rondas. |
+| `technical_summary.transcription.elapsed_s` y `model_requested` | Documentar tiempo y modelo solicitados para esa etapa. | Tiempos diferentes apoyan la trazabilidad; no bastan por sí solos para probar dos llamadas. |
+| `technical_summary.relevance_call.request_id` y `analysis_call.request_id` | Identificar las solicitudes de las etapas de lenguaje. | Son solicitudes diferentes de la transcripción; no la sustituyen como evidencia. |
+| `transcript` y `audio_profile` | Comparar textos y descriptores obtenidos. | Resultados iguales no prueban reutilización ni, con dos casos, estabilidad general del sistema. |
+
+Para una prueba de repetibilidad, conserva por separado el audio original, contexto, perfil de prompts, configuración sin secretos, versión del código y JSON de cada ronda. El JSON actual no incorpora automáticamente el texto completo del contexto, una copia íntegra del prompt ni el commit: archívalos aparte. Registra también las reglas de normalización del texto y emparejamiento de categorías usadas para comparar.
+
+Si faltan los registros de una ronda, formula la conclusión como una comparación de las salidas disponibles. No atribuyas a una caché lo que no se ha demostrado ni presentes la identidad entre dos textos como validación general del modelo. Una prueba nueva debe documentarse como nueva; no reconstruye retroactivamente la telemetría que falte de una prueba anterior.
 
 ---
 
@@ -657,14 +740,14 @@ Las variables se leen primero desde `st.secrets` y, como alternativa, desde vari
 ## 15. Estructura del repositorio
 
 ```text
-ejm_art_ed/
+coyuntura-politica-ia/
 ├── .streamlit/
 │   ├── README_SECRETS.md
 │   └── secrets.toml.example
 ├── src/
 │   └── system_prompts/
 │       ├── 01_dsrm_colombia_general.md
-│       └── README.md
+│       └── README_system_prompt.md
 ├── .gitignore
 ├── LICENSE
 ├── README.md
@@ -691,7 +774,7 @@ La aplicación también está preparada para leer documentos opcionales desde:
 src/project_docs/
 ```
 
-Si esa carpeta no existe, el chequeo la reporta como una condición no crítica. Se espera que se utlice para mostrar documentos teóricos, manuales metodológicos o notas de diseño dentro de la pestaña **Proyecto**.
+Si esa carpeta no existe, el chequeo la reporta como una condición no crítica. Se espera que se utilice para mostrar documentos teóricos, manuales metodológicos o notas de diseño dentro de la pestaña **Proyecto**.
 
 ---
 
@@ -748,7 +831,7 @@ No utilices el MVP para vigilancia, perfilamiento automático de personas o deci
 4. **La evidencia del LLM debe contrastarse.** Una estructura JSON correcta no garantiza una interpretación correcta.
 5. **El filtro de relevancia no está calibrado estadísticamente.** Su umbral es una regla metodológica del MVP.
 6. **Las recomendaciones son borradores.** No constituyen asesoría política automatizada.
-7. **El corpus actual no tiene validación publicada.** Todavía se requiere contrastar resultados con codificación humana.
+7. **La evaluación es exploratoria.** El trabajo de grado documenta comparaciones con anotación humana en un caso de estudio; estas no equivalen a validación externa, a acuerdo entre varios codificadores ni a generalización estadística.
 8. **El perfil teórico es editable.** Cambiar el prompt puede modificar sustancialmente los resultados.
 
 ---
@@ -981,7 +1064,7 @@ Este proyecto se distribuye bajo licencia MIT.
 
 Consulta [LICENSE](LICENSE).
 
-Copyright © 2026 Edinso....
+La atribución y los términos de distribución se conservan en el archivo `LICENSE`.
 
 ---
 
